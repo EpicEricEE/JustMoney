@@ -172,7 +172,7 @@ public final class VaultEconomy implements Economy {
     public EconomyResponse depositPlayer(String playerName, double amount) {
         return getOfflinePlayer(playerName)
             .map(player -> depositPlayer(player, amount))
-            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player with name " + playerName));
+            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player named " + playerName));
     }
 
     @Override
@@ -185,7 +185,7 @@ public final class VaultEconomy implements Economy {
     public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
         return getOfflinePlayer(playerName)
             .map(player -> depositPlayer(player, worldName, amount))
-            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player with name " + playerName));
+            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player named " + playerName));
     }
 
     @Override
@@ -195,7 +195,7 @@ public final class VaultEconomy implements Economy {
                 double balance = manager.getBankAccount(player).deposit(world, amount);
                 return new EconomyResponse(amount, balance, ResponseType.SUCCESS, null);
             })
-            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find world with name " + worldName));
+            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find world named " + worldName));
     }
 
     @Override
@@ -268,7 +268,7 @@ public final class VaultEconomy implements Economy {
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
         return getOfflinePlayer(playerName)
             .map(player -> withdrawPlayer(player, amount))
-            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player with name " + playerName));
+            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player named " + playerName));
     }
 
     @Override
@@ -285,7 +285,7 @@ public final class VaultEconomy implements Economy {
     public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
         return getOfflinePlayer(playerName)
             .map(player -> withdrawPlayer(player, worldName, amount))
-            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player with name " + playerName));
+            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find player named " + playerName));
     }
 
     @Override
@@ -299,6 +299,6 @@ public final class VaultEconomy implements Economy {
                 double newBalance = manager.getBankAccount(player).withdraw(world, amount);
                 return new EconomyResponse(amount, newBalance, ResponseType.SUCCESS, null);
             })
-            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find world with name " + worldName));
+            .orElse(new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to find world named " + worldName));
     }
 }

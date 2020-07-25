@@ -25,47 +25,69 @@ public class SetSubCommand extends SubCommand {
     }
 
     @Override
+    public boolean isPermitted(CommandSender sender) {
+        return sender.hasPermission("justmoney.set.self") || sender.hasPermission("justmoney.set.other");
+    }
+
+    @Override
     public boolean onExecute(CommandSender sender, String label, String... args) {
+        if (!isPermitted(sender)) {
+            sendMessage(sender, "§cYou don't have permission to use this command.");
+            return true;
+        }
+
         boolean isMultiWorld = plugin.getConfig().getBoolean("multi-world");
-        if (args.length < 2 || args.length > 3 || (!isMultiWorld) && args.length > 2) {
+        if (args.length > 3 || (!isMultiWorld) && args.length > 2) {
             return false;
         }
 
-        if (args.length < 3 && isMultiWorld && !(sender instanceof Player)) {
+        if ((args.length < 2 || (args.length < 3 && isMultiWorld)) && !(sender instanceof Player)) {
             return false;
         }
 
         boolean hasPlayer;
         double newBalance;
-        try {
-            // /money set <amount> [<world>]
-            newBalance = Double.parseDouble(args[0]);
+        if (args.length == 1) {
+            // /money <amount>
             hasPlayer = false;
-        } catch (NumberFormatException ex) {
+            try {
+                newBalance = Double.parseDouble(args[0]);
+            } catch (NumberFormatException ex) {
+                return false;
+            }
+        } else {
             try {
                 // /money set <player> <amount> [<world>]
                 newBalance = Double.parseDouble(args[1]);
                 hasPlayer = true;
-            } catch (NumberFormatException ex2) {
-                return false;
+            } catch (NumberFormatException ex) {
+                try {
+                    // /money set <amount> [<world>]
+                    newBalance = Double.parseDouble(args[0]);
+                    hasPlayer = false;
+                } catch (NumberFormatException ex2) {
+                    return false;
+                }
             }
         }
 
-        if (hasPlayer) {
+        if (!hasPlayer) {
             if (!(sender instanceof Player)) {
                 return false;
             }
 
             if (!sender.hasPermission("justmoney.set.self")) {
-                return false;
+                sendMessage(sender, "§cYou don't have permission to use this command.");
+                return true;
             }
         } else if (!sender.hasPermission("justmoney.set.other")) {
-            return false;
+            sendMessage(sender, "§cYou don't have permission to use this command.");
+            return true;
         }
 
         OfflinePlayer player = hasPlayer ? getOfflinePlayer(args[0]) : (Player) sender;
         if (player == null) {
-            sendMessage(sender, "§cCould not find a player with name §6{0}§c.", args[0]);
+            sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
             return true;
         }
 
@@ -82,7 +104,7 @@ public class SetSubCommand extends SubCommand {
                 : ((Player) sender).getWorld();
 
             if (world == null) {
-                sendMessage(sender, "§cCould not find a world with name §6{0}§c.", args[2]);
+                sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[2]);
                 return true;
             }
 
@@ -105,11 +127,6 @@ public class SetSubCommand extends SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, String... args) {
-        if (args.length == 0) {
-            // ? Is this even possible?
-            return Collections.emptyList();
-        }
-
         if (!sender.hasPermission("justmoney.set.self") && !sender.hasPermission("justmoney.set.other")) {
             return Collections.emptyList();
         }
@@ -127,34 +144,40 @@ public class SetSubCommand extends SubCommand {
         }
 
         // Suggest amount
-        if ((sender.hasPermission("justmoney.set.self") && args.length == 1)
+        boolean isAmountSet = false;
+        try {
+            Double.parseDouble(args[0]);
+            isAmountSet = true;
+        } catch (NumberFormatException ignored) {
+        }
+
+        if ((sender instanceof Player && sender.hasPermission("justmoney.set.self") && args.length == 1)
                 || sender.hasPermission("justmoney.set.other") && args.length == 2) {
             String amount = args[args.length - 1];
-            boolean isAmountValid = amount.isEmpty();
+            boolean isAmountValid = false;
             try {
                 Double.parseDouble(amount);
                 isAmountValid = true;
             } catch (NumberFormatException ignored) {
             }
-    
-            if (isAmountValid) {
-                return IntStream.rangeClosed(0, 9)
-                    .filter(num -> amount.replaceAll("0\\.", "").isEmpty() ^ num == 0)
-                    .mapToObj(num -> amount + String.valueOf(num))
-                    .collect(Collectors.toList());
+
+            if ((amount.isEmpty() && !isAmountSet) || isAmountValid || amount.equals(".")) {
+                int decimals = plugin.getConfig().getInt("formatting.decimal-places");
+                int dotIndex = amount.indexOf(".");
+                if (dotIndex == -1 || amount.length() - dotIndex <= decimals) {
+                    return IntStream.rangeClosed(0, 9)
+                        .filter(num -> !(amount.replaceAll("0\\.", "").isEmpty() && num == 0))
+                        .mapToObj(num -> amount + String.valueOf(num))
+                        .collect(Collectors.toList());
+                } else {
+                    return Arrays.asList(amount);
+                }
             }
         }
 
         // Suggest world
         if (plugin.getConfig().getBoolean("multi-world") && (args.length == 2 || args.length == 3)) {
-            boolean isAmountValid = args.length == 3;
-            try {
-                Double.parseDouble(args[1]);
-                isAmountValid = true;
-            } catch (NumberFormatException ignored) {
-            }
-
-            if (isAmountValid) {
+            if (args.length == 3 || isAmountSet) {
                 return plugin.getServer().getWorlds().stream()
                     .map(World::getName)
                     .collect(Collectors.toList());

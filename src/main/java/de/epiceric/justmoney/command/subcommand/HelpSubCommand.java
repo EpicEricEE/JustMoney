@@ -34,12 +34,17 @@ public class HelpSubCommand extends SubCommand {
     private String createLine(String label, String args, boolean appendWorld, String description) {
         String command = label;
         if (!args.isEmpty()) {
-            command = " " + args;
+            command += " " + args;
         }
         if (appendWorld) {
             command += " [<world>]";
         }
         return MessageFormat.format("§6/{0}: §f{1}", command, description);
+    }
+
+    @Override
+    public boolean isPermitted(CommandSender sender) {
+        return true;
     }
 
     @Override
@@ -63,16 +68,18 @@ public class HelpSubCommand extends SubCommand {
         // Show "/money <player> [<world>]" command
         if (sender.hasPermission("justmoney.view.other")) {
             if (isPlayer || !isMultiWorld) {
-                sender.sendMessage(createLine(label, "<player>", isMultiWorld, "Show the current balance of the given player."));
+                sender.sendMessage(createLine(label, "<player>", isMultiWorld, "Show the balance of a player."));
             } else if (isMultiWorld) {
-                sender.sendMessage(createLine(label, "<player> <world>", false, "Show the current balance of the given player."));
+                sender.sendMessage(createLine(label, "<player> <world>", false, "Show the balance of a player."));
             }
         }
 
         // Show "/money send <player> <amount> [<world>]" command
-        if (isPlayer) {
-            if (sender.hasPermission("justmoney.send")) {
-                sender.sendMessage(createLine(label, "send <player> <amount>", isMultiWorld, "Send money to the given player."));
+        if (sender.hasPermission("justmoney.send")) {
+            if (isPlayer || !isMultiWorld) {
+                sender.sendMessage(createLine(label, "send <player> <amount>", isMultiWorld, "Send money to a player."));
+            } else if (isMultiWorld) {
+                sender.sendMessage(createLine(label, "send <player> <amount> <world>", false, "Send money to a player."));
             }
         }
 
@@ -86,9 +93,9 @@ public class HelpSubCommand extends SubCommand {
         // Show "/money set <player> <amount> [<world>]" command
         if (sender.hasPermission("justmoney.set.other")) {
             if (isPlayer || !isMultiWorld) {
-                sender.sendMessage(createLine(label, "set <player> <amount>", isMultiWorld, "Set the balance of the given player."));
+                sender.sendMessage(createLine(label, "set <player> <amount>", isMultiWorld, "Set the balance of a player."));
             } else if (isMultiWorld) {
-                sender.sendMessage(createLine(label, "set <player> <amount> <world>", false, "Set the balance of the given player."));
+                sender.sendMessage(createLine(label, "set <player> <amount> <world>", false, "Set the balance of a player."));
             }
         }
 

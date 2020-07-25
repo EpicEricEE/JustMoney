@@ -25,13 +25,15 @@ public class SendSubCommand extends SubCommand {
     }
 
     @Override
-    public boolean onExecute(CommandSender sender, String label, String... args) {
-        if (!(sender instanceof Player)) {
-            return false;
-        }
+    public boolean isPermitted(CommandSender sender) {
+        return sender.hasPermission("justmoney.send");
+    }
 
+    @Override
+    public boolean onExecute(CommandSender sender, String label, String... args) {
         if (!sender.hasPermission("justmoney.send")) {
-            return false;
+            sendMessage(sender, "§cYou don't have permission to use this command.");
+            return true;
         }
 
         boolean isMultiWorld = plugin.getConfig().getBoolean("multi-world");
@@ -39,17 +41,35 @@ public class SendSubCommand extends SubCommand {
             return false;
         }
 
+        if (!(sender instanceof Player) && isMultiWorld && args.length < 3) {
+            return false;
+        }
+        
+        World world = null;
+        if (isMultiWorld) {
+            world = args.length == 3
+                ? plugin.getServer().getWorld(args[2])
+                : ((Player) sender).getWorld();
+
+            if (world == null) {
+                sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[2]);
+                return true;
+            }
+        }
+
         OfflinePlayer receiver = getOfflinePlayer(args[0]);
         if (receiver == null) {
-            sendMessage(sender, "§cCould not find a player with name §6{0}§c.", args[0]);
+            sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
             return true;
         }
 
-        Player player = (Player) sender;
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
 
-        if (receiver.getName().equalsIgnoreCase(player.getName())) {
-            sendMessage(sender, "§cYou cannot send money to yourself.");
-            return true;
+            if (receiver.getName().equalsIgnoreCase(player.getName())) {
+                sendMessage(sender, "§cYou cannot send money to yourself.");
+                return true;
+            }
         }
         
         double moneyAmount;
@@ -60,21 +80,23 @@ public class SendSubCommand extends SubCommand {
             return true;
         }
 
-        BankAccount from = plugin.getBankManager().getBankAccount(player);
+        if (moneyAmount < 0) {
+            sendMessage(sender, "§cYou cannot send a negative amount of money.");
+            return true;
+        } else if (moneyAmount == 0) {
+            sendMessage(sender, "§cThe amount to be sent must be over {0}.", plugin.format(0));
+            return true;
+        }
+
+        BankAccount from = sender instanceof Player
+            ? plugin.getBankManager().getBankAccount((Player) sender) : null;
         BankAccount to = plugin.getBankManager().getBankAccount(receiver);
 
         if (isMultiWorld) {
-            World world = args.length > 2
-                ? plugin.getServer().getWorld(args[2])
-                : player.getWorld();
-
-            if (world == null) {
-                sendMessage(sender, "§cCould not find a world with name §6{0}§c.", args[2]);
-                return true;
-            }
-
             try {
-                from.withdraw(world, moneyAmount);
+                if (from != null) {
+                    from.withdraw(world, moneyAmount);
+                }
                 to.deposit(world, moneyAmount);
             } catch (IllegalStateException ex) {
                 sendMessage(sender, "§cYou don't have enough money.");
@@ -82,7 +104,9 @@ public class SendSubCommand extends SubCommand {
             }
         } else {
             try {
-                from.withdraw(moneyAmount);
+                if (from != null) {
+                    from.withdraw(moneyAmount);
+                }
                 to.deposit(moneyAmount);
             } catch (IllegalStateException ex) {
                 sendMessage(sender, "§cYou don't have enough money.");
@@ -94,8 +118,13 @@ public class SendSubCommand extends SubCommand {
                 plugin.format(moneyAmount), receiver.getName());
 
         if (receiver.isOnline()) {
-            sendMessage(receiver.getPlayer(), "§aYou have received §6{0}§a from §6{1}§a.",
-                    plugin.format(moneyAmount), player.getName());
+            if (sender instanceof Player) {
+                sendMessage(receiver.getPlayer(), "§aYou have received §6{0}§a from §6{1}§a.",
+                    plugin.format(moneyAmount), ((Player) sender).getName());
+            } else {
+                sendMessage(receiver.getPlayer(), "§aYou have received §6{0}§a.",
+                    plugin.format(moneyAmount));
+            }
         }
         
         return true;
@@ -103,21 +132,15 @@ public class SendSubCommand extends SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, String... args) {
-        if (!(sender instanceof Player)) {
-            return Collections.emptyList();
-        }
-
         if (!sender.hasPermission("justmoney.send")) {
             return Collections.emptyList();
         }
-
-        Player player = (Player) sender;
 
         // Suggest player
         if (args.length == 1) {
             return Arrays.stream(plugin.getServer().getOfflinePlayers())
                 .map(OfflinePlayer::getName)
-                .filter(name -> !name.equalsIgnoreCase(player.getName()))
+                .filter(name -> !(sender instanceof Player && name.equalsIgnoreCase(((Player) sender).getName())))
                 .collect(Collectors.toList());
         }
 
@@ -130,11 +153,17 @@ public class SendSubCommand extends SubCommand {
             } catch (NumberFormatException ignored) {
             }
 
-            if (isAmountValid) {
-                return IntStream.rangeClosed(0, 9)
-                    .filter(num -> args[1].replaceAll("0\\.", "").isEmpty() ^ num == 0)
-                    .mapToObj(num -> args[1] + String.valueOf(num))
-                    .collect(Collectors.toList());
+            if (isAmountValid || args[1].equals(".")) {
+                int decimals = plugin.getConfig().getInt("formatting.decimal-places");
+                int dotIndex = args[1].indexOf(".");
+                if (dotIndex == -1 || args[1].length() - dotIndex <= decimals) {
+                    return IntStream.rangeClosed(0, 9)
+                        .filter(num -> !(args[1].replaceAll("0\\.", "").isEmpty() && num == 0))
+                        .mapToObj(num -> args[1] + String.valueOf(num))
+                        .collect(Collectors.toList());
+                } else {
+                    return Arrays.asList(args[1]);
+                }
             }
         }
 

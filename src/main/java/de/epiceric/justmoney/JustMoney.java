@@ -142,7 +142,7 @@ public class JustMoney extends JavaPlugin {
         int decimalPlaces = getConfig().getInt("formatting.decimal-places");
         String value = String.format("%,." + decimalPlaces + "f", balance);
         String format =  getConfig().getString("formatting.format");
-        return format.replace("{value}", value).replace("{sign}", getConfig().getString("format.sign"));
+        return format.replace("{value}", value).replace("{sign}", getConfig().getString("formatting.sign"));
     }
 
     /**

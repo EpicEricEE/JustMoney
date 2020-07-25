@@ -42,6 +42,7 @@ public abstract class SubCommand {
      * 
      * @param name the name
      * @return the offline player or {@code null} if none exists
+     * @since 1.0
      */
     protected final OfflinePlayer getOfflinePlayer(String name) {
         return Arrays.stream(plugin.getServer().getOfflinePlayers())
@@ -58,6 +59,18 @@ public abstract class SubCommand {
     public String getName() {
         return name;
     }
+
+    /**
+     * Gets whether the given command sender is allowed to use the sub command.
+     * <p>
+     * This is used for checking whether the command's tab completions 
+     * should contain this subcommand.
+     * 
+     * @param sender
+     * @return whether the player is permitted
+     * @since 1.0
+     */
+    public abstract boolean isPermitted(CommandSender sender);
 
     /**
      * Called when the sub command is executed.

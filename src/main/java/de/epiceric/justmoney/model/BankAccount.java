@@ -199,10 +199,10 @@ public final class BankAccount {
      * 
      * @param amount the amount to withdraw
      * @return the new balance
-     * @throws IllegalStateException when the account does not have enough money
+     * @throws NotEnoughMoneyException when the account does not have enough money
      * @since 1.0
      */
-    public double withdraw(double amount) throws IllegalStateException {
+    public double withdraw(double amount) throws NotEnoughMoneyException {
         return withdraw(getDefaultWorld(), amount);
     }
 }

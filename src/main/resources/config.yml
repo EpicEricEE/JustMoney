@@ -1,0 +1,25 @@
+# Whether a player's balance should be different in each world.
+# When this is disabled (after being enabled), the balances in each world
+# will be overridden by the balance in the "global" world!
+multi-world: false
+
+# The balance that a new player starts with (in every world).
+start-balance: 20
+
+# How to format money
+formatting:
+  sign: "$"
+  format: "{value}{sign}"
+  decimal-places: 2
+
+# How the balance data is stored.
+# Valid values are "flatfile", "sqlite" and "mysql".
+storage-type: flatfile
+
+# Where to reach your MySQL server
+mysql:
+  hostname: ""
+  port: 3306
+  database: ""
+  username: ""
+  password: ""

@@ -1,0 +1,45 @@
+name: ${project.name}
+version: ${project.version}
+description: ${project.description}
+author: EpicEric
+website: ${project.url}
+
+main: de.epiceric.justmoney.JustMoney
+load: STARTUP
+api-version: 1.16
+softdepend:
+  - Vault
+
+commands:
+  money:
+    description: Manage your or another player's balance.
+    usage: |-
+      /<command> [<player>] [<world>]
+      /<command> send <player> <amount> [<world>]
+      /<command> set [<player>] <amount> [<world>]
+      /<command> help
+    aliases:
+      - bal
+      - balance
+
+permissions:
+  justmoney.*:
+    description: Grants every permission of the JustMoney plugin.
+    children:
+      justmoney.send:
+        description: Allows you to send money to another player.
+        default: true
+
+      justmoney.view.other:
+        description: Allows you to view another player's balance.
+        default: op
+
+      justmoney.set.*:
+        description: Allows you to set your or another player's balance.
+        children:
+          justmoney.set.self:
+            description: Allows you to set your own balance.
+            default: op
+          justmoney.set.other:
+            description: Allows you to set another player's balance.
+            default: op

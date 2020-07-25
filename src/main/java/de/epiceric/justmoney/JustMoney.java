@@ -14,7 +14,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import de.epiceric.justmoney.command.MoneyCommand;
+import de.epiceric.justmoney.command.CommandManager;
 import de.epiceric.justmoney.model.BankAccount;
 import de.epiceric.justmoney.storage.BankStorage;
 import de.epiceric.justmoney.storage.FileStorage;
@@ -107,9 +107,9 @@ public class JustMoney extends JavaPlugin {
             getServer().getServicesManager().register(Economy.class, economy, this, ServicePriority.Normal);
         }
 
-        MoneyCommand moneyCommand = new MoneyCommand(this);
-        getCommand("money").setExecutor(moneyCommand);
-        getCommand("money").setTabCompleter(moneyCommand);
+        CommandManager command = new CommandManager(this);
+        getCommand("money").setExecutor(command);
+        getCommand("money").setTabCompleter(command);
 
         Metrics metrics = new Metrics(this, 8256);
         metrics.addCustomChart(new Metrics.SimplePie("storage_type", () -> getStorage().getTypeName()));

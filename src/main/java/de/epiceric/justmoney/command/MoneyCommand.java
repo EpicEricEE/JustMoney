@@ -2,14 +2,14 @@ package de.epiceric.justmoney.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import de.epiceric.justmoney.JustMoney;
@@ -24,7 +24,7 @@ import de.epiceric.justmoney.model.BankAccount;
  * 
  * @since 1.0
  */
-public class MoneyCommand extends SubCommand implements TabExecutor {
+public class MoneyCommand extends SubCommand {
     private final SubCommand helpCommand;
     private final List<SubCommand> subCommands = new ArrayList<>();
 
@@ -36,211 +36,185 @@ public class MoneyCommand extends SubCommand implements TabExecutor {
         this.subCommands.add(helpCommand);
     }
 
-    // Executor and tab completion from SubCommand class
-
     @Override
     public boolean isPermitted(CommandSender sender) {
         return true;
     }
 
     @Override
-    public boolean onExecute(CommandSender sender, String label, String... args) {
-        OfflinePlayer player = null;
-        World world = null;
+    public boolean onExecute(Player player, String label, String... args) {
+        boolean hasPermissionViewOther = player.hasPermission("justmoney.view.other");
 
-        if (args.length == 0) {
-            if (!(sender instanceof Player)) {
-                return false;
+        switch (args.length) {
+            case 0: {
+                BankAccount account = plugin.getBankManager().getBankAccount(player);
+                String message = isMultiWorld()
+                    ? "§aYour balance in this world is §6{0}§a."
+                    : "§aYour current balance is §6{0}§a.";
+
+                sendMessage(player, message, account.formatBalance(player.getWorld()));
+                return true;
             }
+            case 1: {
+                World world = plugin.getServer().getWorld(args[0]);
+                OfflinePlayer accountOwner = getOfflinePlayer(args[0]);
 
-            player = (Player) sender;
-            world = ((Player) sender).getWorld();
-        } else if (args.length == 1) {
-            if (!(sender instanceof Player)) {
-                if (plugin.getConfig().getBoolean("multi-world")) {
-                    return false;
-                }
-
-                if (!sender.hasPermission("justmoney.view.other")) {
-                    sendMessage(sender, "§cYou don't have permission to use this command.");
+                // try to parse argument as world
+                if (world != null && isMultiWorld()) {
+                    BankAccount account = plugin.getBankManager().getBankAccount(player);
+                    sendMessage(player, "§aYour balance in the world §6{0}§a is §6{1}§a.",
+                            world.getName(), account.formatBalance(world));
                     return true;
                 }
 
-                player = getOfflinePlayer(args[0]);
+                // try to parse argument as player
+                if (accountOwner != null && hasPermissionViewOther) {
+                    BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
 
-                if (player == null) {
+                    String message = isMultiWorld()
+                        ? "§aThe balance of §6{0}§a in this world is §6{1}§a."
+                        : "§aThe balance of §6{0}§a is §6{1}§a.";
+
+                    sendMessage(player, message, accountOwner.getName(), account.formatBalance(player.getWorld()));
+                    return true;
+                }
+
+                // the argument is neither a player nor a world
+                if (isMultiWorld() || hasPermissionViewOther) {
+                    String message = hasPermissionViewOther
+                        ? isMultiWorld()
+                            ? "§cCould not find a player or world named §6{0}§c."
+                            : "§cCould not find a player named §6{0}§c."
+                        : "§cCould not find a world named §6{0}§c.";
+
+                    sendMessage(player, message, args[0]);
+                    return true;
+                }
+
+                break;
+            }
+            case 2: {
+                if (isMultiWorld() && hasPermissionViewOther) {
+                    OfflinePlayer accountOwner = getOfflinePlayer(args[0]);
+                    World world = plugin.getServer().getWorld(args[1]);
+
+                    if (accountOwner == null) {
+                        sendMessage(player, "§cCould not find a player named §6{0}§c.", args[0]);
+                    } else if (world == null) {
+                        sendMessage(player, "§cCould not find a world named §6{0}§c.", args[1]);
+                    } else {
+                        BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
+                        sendMessage(player, "§aThe balance of §6{0}§a in the world §6{1}§a is §6{2}§a.",
+                                accountOwner.getName(), world.getName(), account.formatBalance(world));
+                    }
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean onExecute(CommandSender sender, String label, String... args) {
+        boolean hasPermissionViewOther = sender.hasPermission("justmoney.view.other");
+
+        switch (args.length) {
+            case 0:
+                return false;
+            case 1: {
+                if (isMultiWorld()) {
+                    // a command sender does not have a default world to use
+                    return false;
+                }
+                
+                OfflinePlayer accountOwner = getOfflinePlayer(args[0]);
+
+                // the argument has to be parsed as a player
+                if (accountOwner != null && hasPermissionViewOther) {
+                    BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
+                    sendMessage(sender, "§aThe balance of §6{0}§a is §6{1}§a.",
+                            accountOwner.getName(), account.formatBalance());
+                    return true;
+                }
+
+                if (accountOwner == null) {
                     sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
                     return true;
                 }
-            } else {
-                if (plugin.getConfig().getBoolean("multi-world")) {
-                    world = plugin.getServer().getWorld(args[0]);
 
-                    if (world == null) {
-                        if (sender.hasPermission("justmoney.view.other")) {
-                            player = getOfflinePlayer(args[0]);
-                            world = ((Player) sender).getWorld();
-                        } else {
-                            sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[0]);    
-                            return true;
-                        }
-                    }
-    
-                    if (player == null) {
-                        sendMessage(sender, "§cCould not find a player or world named §6{0}§c.", args[0]);
-                        return true;
-                    }
-                } else {
-                    if (!sender.hasPermission("justmoney.view.other")) {
-                        return false;
-                    }
+                break;
+            }
+            case 2: {
+                if (isMultiWorld() && hasPermissionViewOther) {
+                    OfflinePlayer accountOwner = getOfflinePlayer(args[0]);
+                    World world = plugin.getServer().getWorld(args[1]);
 
-                    player = getOfflinePlayer(args[0]);
-                    if (player == null) {
+                    if (accountOwner == null) {
                         sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
-                        return true;
+                    } else if (world == null) {
+                        sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[1]);
+                    } else {
+                        BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
+                        sendMessage(sender, "§aThe balance of §6{0}§a in the world §6{1}§a is §6{2}§a.",
+                                accountOwner.getName(), world.getName(), account.formatBalance(world));
                     }
+                    return true;
                 }
-            }
-        } else if (args.length == 2 && plugin.getConfig().getBoolean("multi-world")) {
-            if (!sender.hasPermission("justmoney.view.other")) {
-                sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
-                return true;
-            }
-
-            player = getOfflinePlayer(args[0]);
-            world = plugin.getServer().getWorld(args[1]);
-
-            if (player == null) {
-                sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
-                return true;
-            }
-            
-            if (world == null) {
-                sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[1]);
-                return true;
-            }
-        } else {
-            return false;
-        }
-
-        BankAccount account = plugin.getBankManager().getBankAccount(player);
-        boolean customPlayer = !(sender instanceof Player) || !player.getUniqueId().equals(((Player) sender).getUniqueId());
-
-        if (plugin.getConfig().getBoolean("multi-world")) {
-            boolean customWorld = world != null;
-            if (sender instanceof Player) {
-                customWorld &= !((Player) sender).getWorld().getName().equalsIgnoreCase(world.getName());
-            }
-
-            if (customWorld) {
-                if (customPlayer) {
-                    sendMessage(sender, "§aThe current balance of §6{0}§a in the world §6{1}§a is §6{2}§a.",
-                            player.getName(), world.getName(), account.formatBalance(world));
-                } else {
-                    sendMessage(sender, "§aYour balance in the world §6{0}§a is §6{1}§a.",
-                            world.getName(), account.formatBalance(world));
-                }
-            } else {
-                if (customPlayer) {
-                    sendMessage(sender, "§aThe current balance of §6{0}§a in the current world is §6{0}§a.",
-                            player.getName(), account.formatBalance(world));
-                } else {
-                    sendMessage(sender, "§aYour balance in the current world is §6{0}§a.",
-                            account.formatBalance(world));
-                }
-            }
-        } else {
-            if (customPlayer) {
-                sendMessage(sender, "§aThe current balance of §6{0}§a is §6{1}§a.", player.getName(), account.formatBalance());
-            } else {
-                sendMessage(sender, "§aYour current balance is §6{0}§a.", account.formatBalance());
             }
         }
 
-        return true;
+        return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String... args) {
+        boolean hasPermissionViewOther = player.hasPermission("justmoney.view.other");
+
+        Set<String> worlds = plugin.getServer().getWorlds().stream()
+            .map(World::getName)
+            .collect(Collectors.toSet());
+
+        Set<String> players = Arrays.stream(plugin.getServer().getOfflinePlayers())
+            .map(OfflinePlayer::getName)
+            .collect(Collectors.toSet());
+
+        switch (args.length) {
+            case 1: {
+                List<String> result = new ArrayList<>();
+                if (isMultiWorld()) result.addAll(worlds);
+                if (hasPermissionViewOther) result.addAll(players);
+                return result;
+            }
+            case 2: {
+                if (isMultiWorld() && !worlds.contains(args[0])) {
+                    return new ArrayList<>(worlds);
+                }
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, String... args) {
-        boolean isMultiWorld = plugin.getConfig().getBoolean("multi-world");
-        boolean allowViewOther = sender.hasPermission("justmoney.view.other");
-
-        List<String> result = new ArrayList<>();
-
-        // Suggest player
-        if (allowViewOther && args.length == 1) {
-            result.addAll(Arrays.stream(plugin.getServer().getOfflinePlayers())
-                .map(OfflinePlayer::getName)
-                .collect(Collectors.toList()));
-        }
-
-        // Suggest world
-        if (isMultiWorld && ((sender instanceof Player && args.length == 1) || (allowViewOther && args.length == 2))) {
-            result.addAll(plugin.getServer().getWorlds().stream()
-                .map(World::getName)
-                .collect(Collectors.toList()));
-        }
-
-        return result;
-    }
-
-    // Executor and tab completer for Bukkit
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length > 0) {
-            for (SubCommand subCommand : subCommands) {
-                if (subCommand.getName().isEmpty()) {
-                    continue;
+        switch (args.length) {
+            case 1: {
+                if (sender.hasPermission("justmoney.view.other") && isMultiWorld()) {
+                    return Arrays.stream(plugin.getServer().getOfflinePlayers())
+                        .map(OfflinePlayer::getName)
+                        .collect(Collectors.toList());
                 }
-                
-                if (args[0].equalsIgnoreCase(subCommand.getName())) {
-                    if (!subCommand.onExecute(sender, label, Arrays.copyOfRange(args, 1, args.length))) {
-                        helpCommand.onExecute(sender, label, new String[0]);
-                    }
-                    return true;
+            }
+            case 2: {
+                if (isMultiWorld()) {
+                    return plugin.getServer().getWorlds().stream()
+                        .map(World::getName)
+                        .collect(Collectors.toList());
                 }
             }
         }
 
-        if (!this.onExecute(sender, label, args)) {
-            helpCommand.onExecute(sender, label, new String[0]);
-        }
-        return true;
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
-        List<String> result = new ArrayList<>();
-
-        // Suggest sub commands
-        if (args.length == 1) {
-            result.addAll(subCommands.stream()
-                .filter(cmd -> cmd.isPermitted(sender))
-                .map(SubCommand::getName)
-                .collect(Collectors.toList()));
-        }
-
-        // Suggest sub command suggestions
-        boolean isHandledBySubCommand = false;
-        if (args.length > 1) {
-            String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
-            for (SubCommand subCommand : subCommands) {
-                if (subCommand.isPermitted(sender) && args[0].equalsIgnoreCase(subCommand.getName())) {
-                    result.addAll(subCommand.onTabComplete(sender, subArgs));
-                    isHandledBySubCommand = true;
-                    break;
-                }
-            }
-        }
-
-        if (!isHandledBySubCommand) {
-            result.addAll(this.onTabComplete(sender, args));
-        }
-
-        return result.stream()
-            .filter(str -> str.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))
-            .collect(Collectors.toList());
+        return Collections.emptyList();
     }
 }

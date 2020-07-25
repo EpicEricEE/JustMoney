@@ -49,6 +49,10 @@ public class BankManager {
      * @since 1.0
      */
     public BankAccount getBankAccount(OfflinePlayer owner) {
+        if (owner == null) {
+            return null;
+        }
+
         if (!bankAccounts.containsKey(owner.getUniqueId())) {
             bankAccounts.put(owner.getUniqueId(), new BankAccount(plugin, owner));
         }

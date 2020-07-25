@@ -1,9 +1,5 @@
 package de.epiceric.justmoney.command.subcommand;
 
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,26 +16,25 @@ public class HelpSubCommand extends SubCommand {
     }
 
     /**
-     * Constructs a line for the help message.
+     * Sends a line for the help message to the given receiver.
      * <p>
-     * Format: <code>§6/{label} {args} [&#60;world&#62;]: §f{description}</code>
+     * Format (player): <code>§6/{label} {args} [&#60;world&#62;]: §f{description}</code>,<br>
+     * Format (non-player): <code>§6/{label} {args} &#60;world&#62;: §f{description}</code>
      * 
+     * @param sender the receiver of the message
      * @param label the used command label
      * @param args the command's arguments
-     * @param appendWorld whether {@code [<world>]} is appended to the command
-     * @param description the help message
+     * @param description the command usage
      * @return the line
      * @since 1.0
      */
-    private String createLine(String label, String args, boolean appendWorld, String description) {
+    private void sendCommand(CommandSender receiver, String label, String args, String description) {
         String command = label;
         if (!args.isEmpty()) {
             command += " " + args;
         }
-        if (appendWorld) {
-            command += " [<world>]";
-        }
-        return MessageFormat.format("§6/{0}: §f{1}", command, description);
+        command += receiver instanceof Player ? " [<world>]" : " <world>";
+        sendMessage(receiver, "§6/{0}: §f{1}", command, description);
     }
 
     @Override
@@ -48,65 +43,44 @@ public class HelpSubCommand extends SubCommand {
     }
 
     @Override
-    public boolean onExecute(CommandSender sender, String label, String... args) {
-        boolean isPlayer = sender instanceof Player;
-        boolean isMultiWorld = plugin.getConfig().getBoolean("multi-world");
-        
-        sender.sendMessage("§e--------- §fHelp: JustMoney §e-----------------------");
-
-        if (isPlayer) {
-            sender.sendMessage(isMultiWorld
-                ? "§7Omit the <world> parameter to use your current world."
+    public boolean onExecute(Player player, String label, String... args) {
+        sendMessage(player, "§e--------- §fHelp: JustMoney §e-----------------------");
+        sendMessage(player, isMultiWorld()
+                ? "§7Leave out the <world> parameter to use your current world."
                 : "§7Your balance is shared across all worlds.");
-        }
 
-        // Show "/money [<world>]" command
-        if (isPlayer) {
-           sender.sendMessage(createLine(label, "", isMultiWorld, "Show your current balance."));
+        sendCommand(player, label, "", "Show your balance.");
+        if (player.hasPermission("justmoney.view.other")) {
+            sendCommand(player, label, "<player>", "Show a player's balance.");
         }
-
-        // Show "/money <player> [<world>]" command
-        if (sender.hasPermission("justmoney.view.other")) {
-            if (isPlayer || !isMultiWorld) {
-                sender.sendMessage(createLine(label, "<player>", isMultiWorld, "Show the balance of a player."));
-            } else if (isMultiWorld) {
-                sender.sendMessage(createLine(label, "<player> <world>", false, "Show the balance of a player."));
-            }
+        if (player.hasPermission("justmoney.send")) {
+            sendCommand(player, label, "send <player> <amount>", "Send money to a player.");
         }
-
-        // Show "/money send <player> <amount> [<world>]" command
-        if (sender.hasPermission("justmoney.send")) {
-            if (isPlayer || !isMultiWorld) {
-                sender.sendMessage(createLine(label, "send <player> <amount>", isMultiWorld, "Send money to a player."));
-            } else if (isMultiWorld) {
-                sender.sendMessage(createLine(label, "send <player> <amount> <world>", false, "Send money to a player."));
-            }
+        if (player.hasPermission("justmoney.set.self")) {
+            sendCommand(player, label, "set <amount>", "Set your balance.");
         }
-
-        // Show "/money set <amount> [<world>]" command
-        if (isPlayer) {
-            if (sender.hasPermission("justmoney.set.self")) {
-                sender.sendMessage(createLine(label, "set <amount>", isMultiWorld, "Set your balance."));
-            }
+        if (player.hasPermission("justmoney.set.other")) {
+            sendCommand(player, label, "set <player> <amount>", "Set a player's balance.");
         }
-
-        // Show "/money set <player> <amount> [<world>]" command
-        if (sender.hasPermission("justmoney.set.other")) {
-            if (isPlayer || !isMultiWorld) {
-                sender.sendMessage(createLine(label, "set <player> <amount>", isMultiWorld, "Set the balance of a player."));
-            } else if (isMultiWorld) {
-                sender.sendMessage(createLine(label, "set <player> <amount> <world>", false, "Set the balance of a player."));
-            }
-        }
-
-        // Show "/money help" command
-        sender.sendMessage(createLine(label, "help", false, "Show this help message."));
+        sendMessage(player, "§6/{0} help: §f{1}", label, "Show this help message");
 
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String... args) {
-        return Collections.emptyList();
+    public boolean onExecute(CommandSender sender, String label, String... args) {
+        sendMessage(sender, "§e--------- §fHelp: JustMoney §e-----------------------");
+        if (sender.hasPermission("justmoney.view.other")) {
+            sendCommand(sender, label, "<player>", "Show a player's balance.");
+        }
+        if (sender.hasPermission("justmoney.send")) {
+            sendCommand(sender, label, "send <player> <amount>", "Send money to a player.");
+        }
+        if (sender.hasPermission("justmoney.set.other")) {
+            sendCommand(sender, label, "set <player> <amount>", "Set a player's balance.");
+        }
+        sendMessage(sender, "§6/{0} help: §f{1}", label, "Show this help message");
+
+        return true;
     }
 }

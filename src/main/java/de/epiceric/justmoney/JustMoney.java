@@ -42,8 +42,7 @@ public class JustMoney extends JavaPlugin {
             try {
                 getLogger().info("Checking for updates...");
 
-                // TODO: replace <ID> with plugin ID, and replace URL in pom.xml and README.md
-                URL url = new URL("https://api.spiget.org/v2/resources/<ID>/versions?size=1&page=1&sort=-releaseDate");
+                URL url = new URL("https://api.spiget.org/v2/resources/81941/versions?size=1&page=1&sort=-releaseDate");
                 URLConnection conn = url.openConnection();
                 conn.setRequestProperty("User-Agent", "JustMoney/UpdateChecker");
 

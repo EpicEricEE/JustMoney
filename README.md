@@ -6,15 +6,15 @@
 JustMoney is a Bukkit economy plugin that adds just money, not any unnecessary features that you will never use.
 Just upload the plugin to your server, and everything just works out of the box.
 
-[**Get JustMoney on SpigotMC**](https://www.spigotmc.org/)
+[**Get JustMoney on SpigotMC**](https://www.spigotmc.org/resources/justmoney.81941/)
 
 ## Features
 - SQLite and MySQL database support
 - [Vault](https://www.spigotmc.org/resources/vault.34315/) integration
 - Optional multi world economy support
 - Customizable currency formatting
-- Simple to use
-- A couple of permissions
+- Permissions
+- Automatic update checking
 
 
 ## Usage

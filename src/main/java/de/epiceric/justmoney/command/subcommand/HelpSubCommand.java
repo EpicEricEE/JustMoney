@@ -16,6 +16,17 @@ public class HelpSubCommand extends SubCommand {
     }
 
     /**
+     * Gets the config value for given help message name.
+     * 
+     * @param configName the name of the help message
+     * @return the configured help message
+     * @since 1.1
+     */
+    private String getHelpMessage(String configName) {
+        return plugin.getConfig().getString("messages.help-messages." + configName);
+    }
+
+    /**
      * Sends a line for the help message to the given receiver.
      * <p>
      * Format (player): <code>§6/{label} {args} [&#60;world&#62;]: §f{description}</code>,<br>
@@ -45,24 +56,24 @@ public class HelpSubCommand extends SubCommand {
     @Override
     public boolean onExecute(Player player, String label, String... args) {
         sendMessage(player, "§e--------- §fHelp: JustMoney §e-----------------------");
-        sendMessage(player, isMultiWorld()
-                ? "§7Leave out the <world> parameter to use your current world."
-                : "§7Your balance is shared across all worlds.");
+        sendMessage(player, "§7" + getHelpMessage(isMultiWorld()
+                ? "leave-out-world-to-use-current"
+                : "balance-shared-across-worlds"));
 
-        sendCommand(player, label, "", "Show your balance.");
+        sendCommand(player, label, "", getHelpMessage("show-your-balance"));
         if (player.hasPermission("justmoney.view.other")) {
-            sendCommand(player, label, "<player>", "Show a player's balance.");
+            sendCommand(player, label, "<player>", getHelpMessage("show-player-balance"));
         }
         if (player.hasPermission("justmoney.send")) {
-            sendCommand(player, label, "send <player> <amount>", "Send money to a player.");
+            sendCommand(player, label, "send <player> <amount>", getHelpMessage("send-money"));
         }
         if (player.hasPermission("justmoney.set.self")) {
-            sendCommand(player, label, "set <amount>", "Set your balance.");
+            sendCommand(player, label, "set <amount>", getHelpMessage("set-your-balance"));
         }
         if (player.hasPermission("justmoney.set.other")) {
-            sendCommand(player, label, "set <player> <amount>", "Set a player's balance.");
+            sendCommand(player, label, "set <player> <amount>", getHelpMessage("set-player-balance"));
         }
-        sendMessage(player, "§6/{0} help: §f{1}", label, "Show this help message");
+        sendMessage(player, "§6/{0} help: §f{1}", label, getHelpMessage("help"));
 
         return true;
     }
@@ -71,15 +82,15 @@ public class HelpSubCommand extends SubCommand {
     public boolean onExecute(CommandSender sender, String label, String... args) {
         sendMessage(sender, "§e--------- §fHelp: JustMoney §e-----------------------");
         if (sender.hasPermission("justmoney.view.other")) {
-            sendCommand(sender, label, "<player>", "Show a player's balance.");
+            sendCommand(sender, label, "<player>", getHelpMessage("show-player-balance"));
         }
         if (sender.hasPermission("justmoney.send")) {
-            sendCommand(sender, label, "send <player> <amount>", "Send money to a player.");
+            sendCommand(sender, label, "send <player> <amount>", getHelpMessage("send-money"));
         }
         if (sender.hasPermission("justmoney.set.other")) {
-            sendCommand(sender, label, "set <player> <amount>", "Set a player's balance.");
+            sendCommand(sender, label, "set <player> <amount>", getHelpMessage("set-player-balance"));
         }
-        sendMessage(sender, "§6/{0} help: §f{1}", label, "Show this help message");
+        sendMessage(sender, "§6/{0} help: §f{1}", label, getHelpMessage("help"));
 
         return true;
     }

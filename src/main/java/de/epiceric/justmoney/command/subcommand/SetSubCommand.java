@@ -42,7 +42,7 @@ public class SetSubCommand extends SubCommand {
         }
 
         if (!isPermitted(player)) {
-            sendMessage(player, "§cYou don't have permission to execute this command.");
+            sendMessage(player, getErrorMessage("no-permission"));
             return true;
         }
 
@@ -56,18 +56,18 @@ public class SetSubCommand extends SubCommand {
                 double newBalance = Double.parseDouble(args[0]);
 
                 if (newBalance < 0) {
-                    sendMessage(player, "§cYou cannot set a negative balance.");
+                    sendMessage(player, getErrorMessage("cannot-set-negative"));
                     return true;
                 }
 
                 account.setBalance(player.getWorld(), newBalance);
                 if (isMultiWorld()) {
-                    sendMessage(player, "§aYou have set your balance in this world to §6{0}§a.", plugin.format(newBalance));
+                    sendMessage(player, getMessage("set-your-balance-current-world"), plugin.format(newBalance));
                 } else {
-                    sendMessage(player, "§aYou have set your balance to §6{0}§a.", plugin.format(newBalance));
+                    sendMessage(player, getMessage("set-your-balance"), plugin.format(newBalance));
                 }
             } catch (NumberFormatException ex) {
-                sendMessage(player, "§cFailed to parse new balance §6{0}§c.", args[1]);
+                sendMessage(player, getErrorMessage("cannot-parse-balance"), args[1]);
             }
             return true;
         }
@@ -79,7 +79,7 @@ public class SetSubCommand extends SubCommand {
             newBalanceIndex = 1;
         } catch (NumberFormatException ex) {
             if (args.length == 3) {
-                sendMessage(player, "§cFailed to parse new balance §6{0}§c.", args[1]);
+                sendMessage(player, getErrorMessage("cannot-parse-balance"), args[1]);
                 return true;
             }
 
@@ -87,7 +87,7 @@ public class SetSubCommand extends SubCommand {
                 newBalance = Double.parseDouble(args[0]);
                 newBalanceIndex = 0;
             } catch (NumberFormatException ex2) {
-                sendMessage(player, "§cFailed to parse new balance §6{0}§c or §6{1}§c.", args[0], args[1]);
+                sendMessage(player, getErrorMessage("cannot-parse-balance"), args[0] + " / " + args[1]);
                 return true;
             }    
         }
@@ -104,12 +104,12 @@ public class SetSubCommand extends SubCommand {
                 newBalanceIndex == 0 ? player: getOfflinePlayer(args[0]));
 
         if (account == null) {
-            sendMessage(player, "§cCould not find a player named §6{0}§c.", args[0]);
+            sendMessage(player, getErrorMessage("cannot-find-player"), args[0]);
             return true;
         }
 
         if (newBalance < 0) {
-            sendMessage(player, "§cYou cannot set a negative balance.");
+            sendMessage(player, getErrorMessage("cannot-set-negative"));
             return true;
         }
 
@@ -124,20 +124,20 @@ public class SetSubCommand extends SubCommand {
                     : player.getWorld();
 
             if (world == null) {
-                sendMessage(player, "§cCould not find a world named §6{0}§c.", args[args.length - 1]);
+                sendMessage(player, getErrorMessage("cannot-find-world"), args[args.length - 1]);
                 return true;
             }
 
             account.setBalance(world, newBalance);
 
             if (account.getOwner().getName().equals(player.getName())) {
-                sendMessage(player, "§aYou have set your balance in the world §6{0}§a to §6{1}§a.",
+                sendMessage(player, getMessage("set-your-balance-in-world"),
                         world.getName(), plugin.format(newBalance));
             } else {
-                sendMessage(player, "§aYou have set the balance of §6{0}§a in the world §6{1}§a to §6{2}§a.",
+                sendMessage(player, getMessage("set-player-balance-in-world"),
                         account.getOwner().getName(), world.getName(), plugin.format(newBalance));
 
-                accountOwner.ifPresent(owner -> sendMessage(owner, "§aYour balance in the world §6{0}§a has been set to §6{1}§a.",
+                accountOwner.ifPresent(owner -> sendMessage(owner, getMessage("set-your-balance-in-world"),
                         world.getName(), plugin.format(_newBalance)));
             }
             
@@ -145,12 +145,12 @@ public class SetSubCommand extends SubCommand {
             account.setBalance(newBalance);
 
             if (account.getOwner().getName().equals(player.getName())) {
-                sendMessage(player, "§aYou have set your balance to §6{0}§a.", plugin.format(newBalance));
+                sendMessage(player, getMessage("set-your-balance"), plugin.format(newBalance));
             } else {
-                sendMessage(player, "§aYou have set the balance of §6{0}§a to §6{1}§a.",
+                sendMessage(player, getMessage("set-player-balance"),
                         account.getOwner().getName(), plugin.format(newBalance));
 
-                accountOwner.ifPresent(owner -> sendMessage(owner, "§aYour balance has been set to §6{0}§a.",
+                accountOwner.ifPresent(owner -> sendMessage(owner, getMessage("set-your-balance"),
                         plugin.format(_newBalance)));
             }
         }
@@ -169,13 +169,13 @@ public class SetSubCommand extends SubCommand {
         }
 
         if (!sender.hasPermission("justmoney.set.other")) {
-            sendMessage(sender, "§cYou don't have permission to execute this command.");
+            sendMessage(sender, getErrorMessage("no-permission"));
             return true;
         }
 
         BankAccount account = plugin.getBankManager().getBankAccount(getOfflinePlayer(args[0]));
         if (account == null) {
-            sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
+            sendMessage(sender, getErrorMessage("cannot-find-player"), args[0]);
             return true;
         }
 
@@ -183,12 +183,12 @@ public class SetSubCommand extends SubCommand {
         try {
             newBalance = Double.parseDouble(args[1]);
         } catch (NumberFormatException ex) {
-            sendMessage(sender, "§cFailed to parse new balance §6{0}§c.", args[1]);
+            sendMessage(sender, getErrorMessage("cannot-parse-balance"), args[1]);
             return true;
         }
 
         if (newBalance < 0) {
-            sendMessage(sender, "§cYou cannot set a negative balance.");
+            sendMessage(sender, getErrorMessage("cannot-set-negative"));
             return true;
         }
 
@@ -197,24 +197,24 @@ public class SetSubCommand extends SubCommand {
         if (isMultiWorld()) {
             World world = plugin.getServer().getWorld(args[2]);
             if (world == null) {
-                sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[2]);
+                sendMessage(sender, getErrorMessage("cannot-find-world"), args[2]);
                 return true;
             }
 
             account.setBalance(world, newBalance);
 
-            sendMessage(sender, "§aYou have set the balance of §6{0}§a in the world §6{1}§a to §6{2}§a.",
+            sendMessage(sender, getMessage("set-player-balance-in-world"),
                     account.getOwner().getName(), world.getName(), plugin.format(newBalance));
 
-            accountOwner.ifPresent(owner -> sendMessage(owner, "§aYour balance in the world §6{0}§a has been set to §6{1}§a.",
+            accountOwner.ifPresent(owner -> sendMessage(owner, getMessage("set-your-balance-in-world"),
                     world.getName(), plugin.format(newBalance)));
         } else {
             account.setBalance(newBalance);
 
-            sendMessage(sender, "§aYou have set the balance of §6{0}§a to §6{1}§a.",
+            sendMessage(sender, getMessage("set-player-balance"),
                     account.getOwner().getName(), plugin.format(newBalance));
 
-            accountOwner.ifPresent(owner -> sendMessage(owner, "§aYour balance has been set to §6{0}§a.",
+            accountOwner.ifPresent(owner -> sendMessage(owner, getMessage("set-your-balance"),
                     plugin.format(newBalance)));
         }
 

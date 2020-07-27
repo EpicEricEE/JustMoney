@@ -23,3 +23,43 @@ mysql:
   database: ""
   username: ""
   password: ""
+
+# All chat messages that a player can receive
+messages:
+  error-messages:
+    no-permission: "§cYou don't have permission to execute this command."
+    not-enough-money: "§cYou don't have enough money."
+    cannot-send-negative: "§cYou cannot send a negative amount of money."
+    cannot-send-zero: "§cYou cannot send money with a value of zero."
+    cannot-send-to-yourself: "§cYou cannot send money to yourself."
+    cannot-set-negative: "§cYou cannot set a negative balance."
+    cannot-parse-amount: "§cCannot parse the amount of money to send: §6{0}"
+    cannot-parse-balance: "§cCannot parse the new balance to set: §6{0}"
+    cannot-find-player: "§cCannot find a player named §6{0}§c."
+    cannot-find-world: "§cCannot find a world named §6{0}§c."
+    cannot-find-player-or-world: "§cCannot find a player or world named §6{0}§c."
+
+  help-messages:
+    leave-out-world-to-use-current: "Leave out the <world> parameter to use the current world."
+    balance-shared-across-worlds: "Your balance is shared across all worlds."
+    show-your-balance: "Show your balance."
+    show-player-balance: "Show a player's balance."
+    send-money: "Send money to a player."
+    set-your-balance: "Set your balance."
+    set-player-balance: "Set a player's balance."
+    help: "Show this help message."
+
+  view-your-balance: "§aYour current balance is §6{0}§a."
+  view-your-balance-current-world: "§aYour balance in this world is §6{0}§a."
+  view-your-balance-in-world: "§aYour balance in the world §6{0}§a is §6{1}§a."
+  view-player-balance: "§aThe balance of §6{0}§a is §6{1}§a."
+  view-player-balance-current-world: "§aThe balance of §6{0}§a in this world is §6{0}§a."
+  view-player-balance-in-world: "§aThe balance of §6{0}§a in the world §6{1}§a is §6{2}§a."
+  set-your-balance: "§aYour balance has been set to §6{0}§a."
+  set-your-balance-current-world: "§aYour balance in this world has been set to §6{0}§a."
+  set-your-balance-in-world: "§aYour balance in the world §6{0}§a has been set to §6{1}§a."
+  set-player-balance: "§aThe balance of §6{0} has been set to §6{1}§a."
+  set-player-balance-current-world: "§aThe balance of §6{0}§a in this world has been set to §6{1}§a."
+  set-player-balance-in-world: "§aThe balance of §6{0}§a in the world §6{1}§a has been set to §6{2}§a."
+  sent-money-to: "§aYou have sent §6{0}§a to §6{1}§a."
+  received-money-from: "§aYou have received §6{0}§a from §6{1}§a."

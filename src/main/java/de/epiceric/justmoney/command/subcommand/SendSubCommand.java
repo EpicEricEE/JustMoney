@@ -41,18 +41,18 @@ public class SendSubCommand extends SubCommand {
         }
 
         if (!isPermitted(player)) {
-            sendMessage(player, "§cYou don't have permission to execute this command.");
+            sendMessage(player, getErrorMessage("no-permission"));
             return true;
         }
 
         BankAccount receiver = plugin.getBankManager().getBankAccount(getOfflinePlayer(args[0]));
         if (receiver == null) {
-            sendMessage(player, "§cCould not find a player named §6{0}§c.", args[0]);
+            sendMessage(player, getErrorMessage("cannot-find-player"), args[0]);
             return true;
         }
 
         if (receiver.getOwner().getName().equals(player.getName())) {
-            sendMessage(player, "§cYou cannot send money to yourself.");
+            sendMessage(player, getErrorMessage("cannot-send-to-yourself"));
             return true;
         }
         
@@ -60,15 +60,15 @@ public class SendSubCommand extends SubCommand {
         try {
             amount = Double.parseDouble(args[1]);
         } catch (NumberFormatException ex) {
-            sendMessage(player, "§cFailed to parse amount §6{0}§c.", args[1]);
+            sendMessage(player, getErrorMessage("cannot-parse-amount"), args[1]);
             return true;
         }
 
         if (amount < 0) {
-            sendMessage(player, "§cYou cannot send a negative amount of money.");
+            sendMessage(player, getErrorMessage("cannot-send-negative"));
             return true;
         } else if (amount == 0) {
-            sendMessage(player, "§cYou cannot send money with a value of zero.");
+            sendMessage(player, getErrorMessage("cannot-send-zero"));
             return true;
         }
 
@@ -81,7 +81,7 @@ public class SendSubCommand extends SubCommand {
                     world = plugin.getServer().getWorld(args[2]);
                 }
                 if (world == null) {
-                    sendMessage(player, "§cCould not find a world named §6{0}§c.", args[2]);
+                    sendMessage(player, getErrorMessage("cannot-find-world"), args[2]);
                     return true;
                 }
                 sender.withdraw(world, amount);
@@ -91,15 +91,15 @@ public class SendSubCommand extends SubCommand {
                 receiver.deposit(amount);
             }
 
-            sendMessage(player, "§aYou have sent §6{0}§a to §6{1}§a.",
+            sendMessage(player, getMessage("sent-money-to"),
                     plugin.format(amount), receiver.getOwner().getName());
 
             if (receiver.getOwner().isOnline()) {
-                sendMessage(receiver.getOwner().getPlayer(), "§aYou have received §6{0}§a from §6{1}§a.",
+                sendMessage(receiver.getOwner().getPlayer(), getMessage("received-money-from"),
                         plugin.format(amount), player.getName());
             }
         } catch (NotEnoughMoneyException ex) {
-            sendMessage(player, "§aYou don't have enough money.");
+            sendMessage(player, getErrorMessage("not-enough-money"));
         }
 
         return true;
@@ -116,13 +116,13 @@ public class SendSubCommand extends SubCommand {
         }
         
         if (!isPermitted(sender)) {
-            sendMessage(sender, "§cYou don't have permission to execute this command.");
+            sendMessage(sender, getErrorMessage("no-permission"));
             return true;
         }
 
         BankAccount receiver = plugin.getBankManager().getBankAccount(getOfflinePlayer(args[0]));
         if (receiver == null) {
-            sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
+            sendMessage(sender, getErrorMessage("cannot-find-player"), args[0]);
             return true;
         }
         
@@ -130,22 +130,22 @@ public class SendSubCommand extends SubCommand {
         try {
             amount = Double.parseDouble(args[1]);
         } catch (NumberFormatException ex) {
-            sendMessage(sender, "§cFailed to parse amount §6{0}§c.", args[1]);
+            sendMessage(sender, getErrorMessage("cannot-parse-amount"), args[1]);
             return true;
         }
 
         if (amount < 0) {
-            sendMessage(sender, "§cYou cannot send a negative amount of money.");
+            sendMessage(sender, getErrorMessage("cannot-send-negative"));
             return true;
         } else if (amount == 0) {
-            sendMessage(sender, "§cYou cannot send money with a value of zero.");
+            sendMessage(sender, getErrorMessage("cannot-send-zero"));
             return true;
         }
 
         if (isMultiWorld()) {
             World world = plugin.getServer().getWorld(args[2]);
             if (world == null) {
-                sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[2]);
+                sendMessage(sender, getErrorMessage("cannot-find-world"), args[2]);
                 return true;
             }
             receiver.deposit(world, amount);
@@ -153,11 +153,11 @@ public class SendSubCommand extends SubCommand {
             receiver.deposit(amount);
         }
 
-        sendMessage(sender, "§aYou have sent §6{0}§a to §6{1}§a.",
+        sendMessage(sender, getMessage("sent-money-to"),
                 plugin.format(amount), receiver.getOwner().getName());
 
         if (receiver.getOwner().isOnline()) {
-            sendMessage(receiver.getOwner().getPlayer(), "§aYou have received §6{0}§a.",
+            sendMessage(receiver.getOwner().getPlayer(), getMessage("received-money-from"),
                     plugin.format(amount));
         }
 

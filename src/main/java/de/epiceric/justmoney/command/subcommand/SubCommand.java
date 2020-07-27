@@ -26,6 +26,28 @@ public abstract class SubCommand {
     }
 
     /**
+     * Gets the config value for given message name.
+     * 
+     * @param configName the name of the message
+     * @return the configured message
+     * @since 1.1
+     */
+    protected final String getMessage(String configName) {
+        return plugin.getConfig().getString("messages." + configName);
+    }
+
+    /**
+     * Gets the config value for given error message name.
+     * 
+     * @param configName the name of the error message
+     * @return the configured error message
+     * @since 1.1
+     */
+    protected final String getErrorMessage(String configName) {
+        return plugin.getConfig().getString("messages.error-messages." + configName);
+    }
+
+    /**
      * Sends a formatted message to the given receiver.
      * <p>
      * The message is formatted via placeholders as <code>{0}</code> and <code>{1}</code>.

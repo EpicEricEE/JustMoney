@@ -48,9 +48,9 @@ public class MoneyCommand extends SubCommand {
         switch (args.length) {
             case 0: {
                 BankAccount account = plugin.getBankManager().getBankAccount(player);
-                String message = isMultiWorld()
-                    ? "§aYour balance in this world is §6{0}§a."
-                    : "§aYour current balance is §6{0}§a.";
+                String message = getMessage(isMultiWorld()
+                    ? "view-your-balance-current-world"
+                    : "view-your-balance");
 
                 sendMessage(player, message, account.formatBalance(player.getWorld()));
                 return true;
@@ -62,7 +62,7 @@ public class MoneyCommand extends SubCommand {
                 // try to parse argument as world
                 if (world != null && isMultiWorld()) {
                     BankAccount account = plugin.getBankManager().getBankAccount(player);
-                    sendMessage(player, "§aYour balance in the world §6{0}§a is §6{1}§a.",
+                    sendMessage(player, getMessage("view-your-balance-in-world"),
                             world.getName(), account.formatBalance(world));
                     return true;
                 }
@@ -71,9 +71,9 @@ public class MoneyCommand extends SubCommand {
                 if (accountOwner != null && hasPermissionViewOther) {
                     BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
 
-                    String message = isMultiWorld()
-                        ? "§aThe balance of §6{0}§a in this world is §6{1}§a."
-                        : "§aThe balance of §6{0}§a is §6{1}§a.";
+                    String message = getMessage(isMultiWorld()
+                        ? "view-player-balance-current-world"
+                        : "view-player-balance");
 
                     sendMessage(player, message, accountOwner.getName(), account.formatBalance(player.getWorld()));
                     return true;
@@ -81,11 +81,11 @@ public class MoneyCommand extends SubCommand {
 
                 // the argument is neither a player nor a world
                 if (isMultiWorld() || hasPermissionViewOther) {
-                    String message = hasPermissionViewOther
+                    String message = getMessage(hasPermissionViewOther
                         ? isMultiWorld()
-                            ? "§cCould not find a player or world named §6{0}§c."
-                            : "§cCould not find a player named §6{0}§c."
-                        : "§cCould not find a world named §6{0}§c.";
+                            ? "cannot-find-player-or-world"
+                            : "cannot-find-player"
+                        : "cannot-find-world");
 
                     sendMessage(player, message, args[0]);
                     return true;
@@ -99,12 +99,12 @@ public class MoneyCommand extends SubCommand {
                     World world = plugin.getServer().getWorld(args[1]);
 
                     if (accountOwner == null) {
-                        sendMessage(player, "§cCould not find a player named §6{0}§c.", args[0]);
+                        sendMessage(player, getMessage("cannot-find-player"), args[0]);
                     } else if (world == null) {
-                        sendMessage(player, "§cCould not find a world named §6{0}§c.", args[1]);
+                        sendMessage(player, getMessage("cannot-find-world"), args[1]);
                     } else {
                         BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
-                        sendMessage(player, "§aThe balance of §6{0}§a in the world §6{1}§a is §6{2}§a.",
+                        sendMessage(player, getMessage("view-player-balance-in-world"),
                                 accountOwner.getName(), world.getName(), account.formatBalance(world));
                     }
                     return true;
@@ -133,13 +133,13 @@ public class MoneyCommand extends SubCommand {
                 // the argument has to be parsed as a player
                 if (accountOwner != null && hasPermissionViewOther) {
                     BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
-                    sendMessage(sender, "§aThe balance of §6{0}§a is §6{1}§a.",
+                    sendMessage(sender, getMessage("view-player-balance"),
                             accountOwner.getName(), account.formatBalance());
                     return true;
                 }
 
                 if (accountOwner == null) {
-                    sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
+                    sendMessage(sender, getErrorMessage("cannot-find-player"), args[0]);
                     return true;
                 }
 
@@ -151,12 +151,12 @@ public class MoneyCommand extends SubCommand {
                     World world = plugin.getServer().getWorld(args[1]);
 
                     if (accountOwner == null) {
-                        sendMessage(sender, "§cCould not find a player named §6{0}§c.", args[0]);
+                        sendMessage(sender, getErrorMessage("cannot-find-player"), args[0]);
                     } else if (world == null) {
-                        sendMessage(sender, "§cCould not find a world named §6{0}§c.", args[1]);
+                        sendMessage(sender, getErrorMessage("cannot-find-world"), args[1]);
                     } else {
                         BankAccount account = plugin.getBankManager().getBankAccount(accountOwner);
-                        sendMessage(sender, "§aThe balance of §6{0}§a in the world §6{1}§a is §6{2}§a.",
+                        sendMessage(sender, getMessage("view-player-balance-in-world"),
                                 accountOwner.getName(), world.getName(), account.formatBalance(world));
                     }
                     return true;

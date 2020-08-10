@@ -11,10 +11,12 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import de.epiceric.justmoney.JustMoney;
+import de.epiceric.justmoney.command.subcommand.GiveSubCommand;
 import de.epiceric.justmoney.command.subcommand.HelpSubCommand;
 import de.epiceric.justmoney.command.subcommand.SendSubCommand;
 import de.epiceric.justmoney.command.subcommand.SetSubCommand;
 import de.epiceric.justmoney.command.subcommand.SubCommand;
+import de.epiceric.justmoney.command.subcommand.TakeSubCommand;
 
 /**
  * The main executor and tab completer for the "/money" command.
@@ -31,6 +33,8 @@ public class CommandManager implements TabExecutor {
         this.helpCommand = new HelpSubCommand(plugin);
         this.subCommands.add(new SendSubCommand(plugin));
         this.subCommands.add(new SetSubCommand(plugin));
+        this.subCommands.add(new GiveSubCommand(plugin));
+        this.subCommands.add(new TakeSubCommand(plugin));
         this.subCommands.add(helpCommand);
     }
 

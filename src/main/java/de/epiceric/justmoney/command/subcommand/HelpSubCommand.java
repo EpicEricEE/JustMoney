@@ -73,6 +73,18 @@ public class HelpSubCommand extends SubCommand {
         if (player.hasPermission("justmoney.set.other")) {
             sendCommand(player, label, "set <player> <amount>", getHelpMessage("set-player-balance"));
         }
+        if (player.hasPermission("justmoney.set.self")) {
+            sendCommand(player, label, "give <amount>", getHelpMessage("give-your-balance"));
+        }
+        if (player.hasPermission("justmoney.set.other")) {
+            sendCommand(player, label, "give <player> <amount>", getHelpMessage("give-player-balance"));
+        }
+        if (player.hasPermission("justmoney.set.self")) {
+            sendCommand(player, label, "take <amount>", getHelpMessage("take-your-balance"));
+        }
+        if (player.hasPermission("justmoney.set.other")) {
+            sendCommand(player, label, "take <player> <amount>", getHelpMessage("take-player-balance"));
+        }
         sendMessage(player, "§6/{0} help: §f{1}", label, getHelpMessage("help"));
 
         return true;
@@ -84,11 +96,10 @@ public class HelpSubCommand extends SubCommand {
         if (sender.hasPermission("justmoney.view.other")) {
             sendCommand(sender, label, "<player>", getHelpMessage("show-player-balance"));
         }
-        if (sender.hasPermission("justmoney.send")) {
-            sendCommand(sender, label, "send <player> <amount>", getHelpMessage("send-money"));
-        }
         if (sender.hasPermission("justmoney.set.other")) {
             sendCommand(sender, label, "set <player> <amount>", getHelpMessage("set-player-balance"));
+            sendCommand(sender, label, "give <player> <amount>", getHelpMessage("give-player-balance"));
+            sendCommand(sender, label, "take <player> <amount>", getHelpMessage("take-player-balance"));
         }
         sendMessage(sender, "§6/{0} help: §f{1}", label, getHelpMessage("help"));
 

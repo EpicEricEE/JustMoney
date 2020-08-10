@@ -27,7 +27,7 @@ public class SendSubCommand extends SubCommand {
 
     @Override
     public boolean isPermitted(CommandSender sender) {
-        return sender.hasPermission("justmoney.send");
+        return sender instanceof Player && sender.hasPermission("justmoney.send");
     }
 
     @Override
@@ -106,81 +106,12 @@ public class SendSubCommand extends SubCommand {
     }
 
     @Override
-    public boolean onExecute(CommandSender sender, String label, String... args) {
-        if (isMultiWorld() && args.length != 3) {
-            return false;
-        }
-
-        if (!isMultiWorld() && args.length != 2) {
-            return false;
-        }
-        
-        if (!isPermitted(sender)) {
-            sendMessage(sender, getErrorMessage("no-permission"));
-            return true;
-        }
-
-        BankAccount receiver = plugin.getBankManager().getBankAccount(getOfflinePlayer(args[0]));
-        if (receiver == null) {
-            sendMessage(sender, getErrorMessage("cannot-find-player"), args[0]);
-            return true;
-        }
-        
-        double amount;
-        try {
-            amount = Double.parseDouble(args[1]);
-        } catch (NumberFormatException ex) {
-            sendMessage(sender, getErrorMessage("cannot-parse-amount"), args[1]);
-            return true;
-        }
-
-        if (amount < 0) {
-            sendMessage(sender, getErrorMessage("cannot-send-negative"));
-            return true;
-        } else if (amount == 0) {
-            sendMessage(sender, getErrorMessage("cannot-send-zero"));
-            return true;
-        }
-
-        if (isMultiWorld()) {
-            World world = plugin.getServer().getWorld(args[2]);
-            if (world == null) {
-                sendMessage(sender, getErrorMessage("cannot-find-world"), args[2]);
-                return true;
-            }
-            receiver.deposit(world, amount);
-        } else {
-            receiver.deposit(amount);
-        }
-
-        sendMessage(sender, getMessage("sent-money-to"),
-                plugin.format(amount), receiver.getOwner().getName());
-
-        if (receiver.getOwner().isOnline()) {
-            sendMessage(receiver.getOwner().getPlayer(), getMessage("received-money-from"),
-                    plugin.format(amount));
-        }
-
-        return true;
-    }
-
-    @Override
     public List<String> onTabComplete(Player player, String... args) {
-        if (args.length == 1) {
-            // Remove player's name from completions
-            return this.onTabComplete((CommandSender) player, args).stream()
-                .filter(name -> !name.equalsIgnoreCase(player.getName()))
-                .collect(Collectors.toList());
-        }
-        return this.onTabComplete((CommandSender) player, args);
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, String... args) {
         switch (args.length) {
             case 1:
                 return Arrays.stream(plugin.getServer().getOfflinePlayers())
                     .map(OfflinePlayer::getName)
+                    .filter(name -> !name.equalsIgnoreCase(player.getName()))
                     .collect(Collectors.toList());
             case 2:
                 int decimals = plugin.getConfig().getInt("formatting.decimal-places");
@@ -191,7 +122,6 @@ public class SendSubCommand extends SubCommand {
                         .map(World::getName)
                         .collect(Collectors.toList());
                 }
-            
         }
         return Collections.emptyList();
     }

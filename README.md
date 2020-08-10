@@ -31,6 +31,10 @@ The optional `<world>` argument can only be used if `multi-world` is enabled in 
 | `/money send <player> <amount> [<world>]` | Send money to another player |
 | `/money set <amount> [<world>]` | Set your own balance |
 | `/money set <player> <amount> [<world>]` | Set the balance of another player |
+| `/money give <amount> [<world>]` | Add money to your own account |
+| `/money give <player> <amount> [<world>]` | Add money to the account of another player |
+| `/money take <amount> [<world>]` | Withdraw money from your own account |
+| `/money take <player> <amount> [<world>]` | Withdraw money from the account of another player |
 | `/money help` | Show the command usage |
 
 ### Permissions

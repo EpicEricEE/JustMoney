@@ -17,6 +17,8 @@ commands:
       /<command> [<player>] [<world>]
       /<command> send <player> <amount> [<world>]
       /<command> set [<player>] <amount> [<world>]
+      /<command> give [<player>] <amount> [<world>]
+      /<command> take [<player>] <amount> [<world>]
       /<command> help
     aliases:
       - bal

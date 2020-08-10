@@ -50,7 +50,7 @@ These should be self-explanatory.
 ## Developer API
 I highly recommend using [Vault](https://www.spigotmc.org/resources/vault.34315/) to hook into your server's economy, as it provides an API that almost all current economy plugins hook into. If for some reason, you still want to hook directly into JustMoney, it is published on CodeMC's maven repository:
 
-*(Replace `{version}` with the respective version)*
+*Replace `{version}` with the respective version*
 ```xml
 <repository>
     <id>codemc-repo</id>
@@ -80,6 +80,7 @@ dependencies {
 ### Example usage
 Any changes to an account's balance done via `BankAccount#setBalance(...)`, `BankAccount#withdraw(...)` or `BankAccount#deposit(...)` are automatically stored to the database or file system.
 
+*[Have a look at the javadoc](https://ci.codemc.io/job/EpicEricEE/job/JustMoney/javadoc/index.html)*
 ```java
 World world = ...;
 OfflinePlayer vendor = ...;

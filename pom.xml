@@ -4,7 +4,7 @@
 
     <groupId>de.epiceric.justmoney</groupId>
     <artifactId>justmoney</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
 
     <name>JustMoney</name>
     <description>A Bukkit plugin for just money.</description>
@@ -24,7 +24,7 @@
         <connection>scm:git:https://github.com/EpicEricEE/JustMoney.git</connection>
         <developerConnection>scm:git:git@github.com:EpicEricEE/JustMoney.git</developerConnection>
         <url>https://github.com/EpicEricEE/JustMoney</url>
-        <tag>v1.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <ciManagement>

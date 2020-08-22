@@ -28,7 +28,6 @@ import net.milkbowl.vault.economy.Economy;
  * @since 1.0
  */
 public class JustMoney extends JavaPlugin {
-    private VaultEconomy economy;
     private BankStorage storage;
 
     /**
@@ -102,7 +101,7 @@ public class JustMoney extends JavaPlugin {
     @Override
     public void onEnable() {
         if (getServer().getPluginManager().isPluginEnabled("Vault")) {
-            economy = new VaultEconomy(this);
+            Economy economy = new VaultEconomy(this);
             getServer().getServicesManager().register(Economy.class, economy, this, ServicePriority.Normal);
         }
 

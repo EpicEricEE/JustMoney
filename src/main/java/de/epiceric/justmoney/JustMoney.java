@@ -37,7 +37,8 @@ public class JustMoney extends JavaPlugin {
      * @since 1.0
      */
     private CompletableFuture<Void> checkUpdate() {
-        return CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        getServer().getScheduler().runTaskAsynchronously(this, () -> {
             try {
                 getLogger().info("Checking for updates...");
 
@@ -63,8 +64,11 @@ public class JustMoney extends JavaPlugin {
                 }
             } catch (Exception ex) {
                 getLogger().log(Level.SEVERE, "Failed to check for updates", ex);
+            } finally {
+                future.complete(null);
             }
         });
+        return future;
     }
 
     @Override

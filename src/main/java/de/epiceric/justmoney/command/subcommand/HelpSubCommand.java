@@ -44,7 +44,9 @@ public class HelpSubCommand extends SubCommand {
         if (!args.isEmpty()) {
             command += " " + args;
         }
-        command += receiver instanceof Player ? " [<world>]" : " <world>";
+        if (isMultiWorld()) {
+            command += receiver instanceof Player ? " [<world>]" : " <world>";
+        }
         sendMessage(receiver, "§6/{0}: §f{1}", command, description);
     }
 

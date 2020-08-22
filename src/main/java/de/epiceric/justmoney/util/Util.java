@@ -34,7 +34,7 @@ public class Util {
             // Allow a maximum of {decimals} decimal places
             if (dotIndex == -1 || arg.length() - dotIndex <= decimals) {                
                 return IntStream.rangeClosed(0, 9)
-                    .filter(num -> !(arg.replaceAll("0\\.", "").isEmpty() && num == 0))
+                    .filter(num -> !(arg.replace("0.", "").isEmpty() && num == 0))
                     .mapToObj(num -> arg + String.valueOf(num))
                     .collect(Collectors.toList());
             }

@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -114,8 +115,8 @@ public class JustMoney extends JavaPlugin {
         getCommand("money").setTabCompleter(command);
 
         Metrics metrics = new Metrics(this, 8256);
-        metrics.addCustomChart(new Metrics.SimplePie("storage_type", () -> getStorage().getTypeName()));
-        metrics.addCustomChart(new Metrics.SimplePie("multi_world", () ->
+        metrics.addCustomChart(new SimplePie("storage_type", () -> getStorage().getTypeName()));
+        metrics.addCustomChart(new SimplePie("multi_world", () ->
                 getConfig().getBoolean("multi-world") ? "Enabled" : "Disabled"));
 
         checkUpdate();

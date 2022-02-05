@@ -6,7 +6,7 @@ website: ${project.url}
 
 main: de.epiceric.justmoney.JustMoney
 load: STARTUP
-api-version: 1.16
+api-version: 1.18
 softdepend:
   - Vault
 

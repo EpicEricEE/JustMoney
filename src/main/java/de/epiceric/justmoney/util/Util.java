@@ -1,9 +1,15 @@
 package de.epiceric.justmoney.util;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+
+import de.epiceric.justmoney.JustMoney;
 
 /**
  * Class containing static utility methods for the JustMoney plugin.
@@ -41,5 +47,27 @@ public class Util {
         } catch (NumberFormatException ignored) {
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Gets the tab completions for a player name.
+     * 
+     * @param plugin an instance of the plugin
+     * @param executor the player to be omitted from the completions
+     * @return the tab completions
+     * @since 1.2
+     */
+    public static List<String> completePlayer(JustMoney plugin, Player executor) {
+        if (plugin.getConfig().getBoolean("offline-tab-completion")) {
+            return Arrays.stream(plugin.getServer().getOfflinePlayers())
+                .map(OfflinePlayer::getName)
+                .filter(name -> executor == null || !name.equalsIgnoreCase(executor.getName()))
+                .collect(Collectors.toList());
+        } else {
+            return plugin.getServer().getOnlinePlayers().stream()
+                .map(Player::getName)
+                .filter(name -> executor == null || !name.equalsIgnoreCase(executor.getName()))
+                .collect(Collectors.toList());
+        }
     }
 }

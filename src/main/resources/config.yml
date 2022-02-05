@@ -12,6 +12,10 @@ formatting:
   format: "{value}{sign}"
   decimal-places: 2
 
+# Whether all offline players should be considered for tab completion.
+# Warning: This can cause lags on larger servers!
+offline-tab-completion: false
+
 # How the balance data is stored.
 # Valid values are "flatfile", "sqlite" and "mysql".
 storage-type: flatfile

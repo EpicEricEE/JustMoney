@@ -1,7 +1,6 @@
 package de.epiceric.justmoney.command;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +17,7 @@ import de.epiceric.justmoney.command.subcommand.SendSubCommand;
 import de.epiceric.justmoney.command.subcommand.SetSubCommand;
 import de.epiceric.justmoney.command.subcommand.SubCommand;
 import de.epiceric.justmoney.model.BankAccount;
+import de.epiceric.justmoney.util.Util;
 
 /**
  * The executor and tab completer for the "/money" command.
@@ -175,9 +175,7 @@ public class MoneyCommand extends SubCommand {
             .map(World::getName)
             .collect(Collectors.toSet());
 
-        Set<String> players = Arrays.stream(plugin.getServer().getOfflinePlayers())
-            .map(OfflinePlayer::getName)
-            .collect(Collectors.toSet());
+        List<String> players = Util.completePlayer(plugin, null);
 
         switch (args.length) {
             case 1: {
@@ -201,9 +199,7 @@ public class MoneyCommand extends SubCommand {
         switch (args.length) {
             case 1: {
                 if (sender.hasPermission("justmoney.view.other") && isMultiWorld()) {
-                    return Arrays.stream(plugin.getServer().getOfflinePlayers())
-                        .map(OfflinePlayer::getName)
-                        .collect(Collectors.toList());
+                    return Util.completePlayer(plugin, null);
                 }
             }
             case 2: {

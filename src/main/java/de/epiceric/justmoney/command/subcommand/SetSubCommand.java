@@ -1,13 +1,11 @@
 package de.epiceric.justmoney.command.subcommand;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -235,9 +233,7 @@ public class SetSubCommand extends SubCommand {
             case 1: {
                 List<String> result = new ArrayList<>();
                 if (hasPermissionSetSelf) {
-                    result.addAll(Arrays.stream(plugin.getServer().getOfflinePlayers())
-                        .map(OfflinePlayer::getName)
-                        .collect(Collectors.toList()));
+                    result.addAll(Util.completePlayer(plugin, null));
                 }
                 if (hasPermissionSetOther && result.isEmpty()) {
                     // Only add amount completions if nothing else has been added
@@ -297,9 +293,7 @@ public class SetSubCommand extends SubCommand {
 
         switch (args.length) {
             case 1:
-                return Arrays.stream(plugin.getServer().getOfflinePlayers())
-                    .map(OfflinePlayer::getName)
-                    .collect(Collectors.toList());
+                return Util.completePlayer(plugin, null);
             case 2:
                 return Util.completeAmount(plugin.getConfig().getInt("formatting.decimal-places"), args[1]);
             case 3:

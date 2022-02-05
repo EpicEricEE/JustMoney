@@ -1,11 +1,9 @@
 package de.epiceric.justmoney.command.subcommand;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -109,10 +107,7 @@ public class SendSubCommand extends SubCommand {
     public List<String> onTabComplete(Player player, String... args) {
         switch (args.length) {
             case 1:
-                return Arrays.stream(plugin.getServer().getOfflinePlayers())
-                    .map(OfflinePlayer::getName)
-                    .filter(name -> !name.equalsIgnoreCase(player.getName()))
-                    .collect(Collectors.toList());
+                return Util.completePlayer(plugin, player);
             case 2:
                 int decimals = plugin.getConfig().getInt("formatting.decimal-places");
                 return Util.completeAmount(decimals, args[1]);

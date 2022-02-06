@@ -109,7 +109,7 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <relocations>
                         <relocation>
-                            <pattern>org.bstats.bukkit</pattern>
+                            <pattern>org.bstats</pattern>
                             <shadedPattern>de.epiceric.justmoney.bstats</shadedPattern>
                         </relocation>
                     </relocations>

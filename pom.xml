@@ -50,15 +50,15 @@
 	
     <repositories>
         <repository>
-            <id>spigot-repo</id>
+            <id>spigot</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases/</url>
+            <id>jitpack</id>
+            <url>https://jitpack.io/</url>
         </repository>
         <repository>
-            <id>codemc-repo</id>
+            <id>codemc</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
         </repository>
     </repositories>
@@ -71,9 +71,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.milkbowl.vault</groupId>
+            <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
+            <version>1.7.1</version>
             <scope>provided</scope>
         </dependency>
 
